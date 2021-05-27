@@ -11,7 +11,7 @@ contract Testament {
     // storage
     address private _owner;
     address private _doctor;
-    bool private _contractEnd;
+    bool private _isOwnerDead;
     mapping (address => uint256) private _legacy;
 
     //event
@@ -39,8 +39,8 @@ contract Testament {
         _;
     }
     
-    modifier contractOver() {
-        require(_contractEnd == true,'Testament: The contract has not yet over.');
+    modifier certifiedDeath() {
+        require(_isOwnerDead == true,'Testament: The owner is not disclosed as dead yet.');
         _;
     }
     
@@ -57,13 +57,13 @@ contract Testament {
         emit DoctorChanged(account);
     }
     
-    function contractEnd() public onlyDoctor {
-        require(_contractEnd == false,'Testament: The contract is already over.');
-        _contractEnd = true;
+    function setCertifiedDeath() public onlyDoctor {
+        require(_isOwnerDead == false,'Testament: The Owner is already dead!.');
+        _isOwnerDead = true;
         emit ContractEnded(msg.sender);
     }
     
-    function withdraw() public contractOver {
+    function withdraw() public certifiedDeath {
         require(_legacy[msg.sender] != 0,'Testament: You do not have any legacy on this contract.');
         uint256 amount = _legacy[msg.sender];
         _legacy[msg.sender] = 0;
@@ -83,8 +83,8 @@ contract Testament {
         return _owner;
     }
     
-    function isContractOver() public view returns (bool) {
-        return _contractEnd;
+    function isDeathCertified() public view returns (bool) {
+        return _isOwnerDead;
     }
     
 }
