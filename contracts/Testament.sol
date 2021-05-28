@@ -16,6 +16,7 @@ contract Testament {
 
     //event
     event Bequeath(address indexed account, uint256 amount);
+    event DecreaseBequeath(address indexed account, uint256 amount);
     event DoctorChanged(address indexed doctor);
     event ContractEnded(address doctor);
     event LegacyWithdrew(address indexed account, uint256 amount);
@@ -50,7 +51,15 @@ contract Testament {
         _legacy[account] += msg.value;
         emit Bequeath(account,msg.value);
     }
-    
+
+    function decreaseBequeath(address account) public onlyOwner {
+        require(_legacy[account] != 0, 'There is no fund link to that account');
+        uint256 amount = _legacy[account];
+        _legacy[account] = 0;
+        payable(msg.sender).sendValue(amount);
+        emit DecreaseBequeath(account, amount);
+    }
+
     function setDoctor(address account) public onlyOwner {
         require(msg.sender != account, 'Testament: You cannot be set as doctor.');
         _doctor = account;

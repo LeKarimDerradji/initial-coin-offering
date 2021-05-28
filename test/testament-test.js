@@ -45,6 +45,21 @@ describe('Testament', function() {
   });
 
   describe('Withdraw', function() {
-    await testament.connect(alice).withdra
+    beforeEach(async function () {
+      await testament.connect(owner).bequeath(alice.address, {value: 1000})
+      await testament.connect(doctor).setCertifiedDeath();
+    });
+    it('Should withdraw all the legacy funds', async function () {
+      await expect(await testament.connect(alice).withdraw())
+      .to.changeEtherBalance(alice, 1000)
+    });
+    it('Should revert if the legacy funds is set to none', async function () {
+      await testament.connect(owner).decreaseBequeath(alice.address)
+      await expect(testament.connect(alice).withdraw())
+      .to.be.revertedWith('Testament: You do not have any legacy on this contract.')
+    });
+    it('Should revert if the owner is not dead yet', async function () {
+      await testament.value()
+    });
   });
 });
